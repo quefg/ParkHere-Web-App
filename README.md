@@ -2,7 +2,7 @@
   <img src="readme_banner.png" alt="ParkHere Banner" style="width:100%; max-width:600px; height:auto; aspect-ratio:3/1;">
 </p>
 
-# 📦 ParkHere — SC2006 SCSC Group A2 Project
+# 📦 ParkHere — Group Project
 A Django-based web application that enables users to search for carparks, view real-time availability, and interact with a dynamic map interface. Admin users can manage and monitor the carpark system.
 ---
 
