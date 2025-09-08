@@ -1,0 +1,722 @@
+@import url('https://fonts.googleapis.com/css2?family=Shrikhand&display=swap');
+      
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        width: 100%;
+        height: 100vh;
+        position:relative;
+      }
+      .search-container {
+        position: absolute;
+        top: 20px;
+        left: 80px;
+        transform: none;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 350px;
+      }
+      .search-bar {
+        display: flex;
+        align-items: center;
+        background: rgba(42, 42, 42, 0.9);
+        border-radius: 12px;
+        padding: 0;
+        z-index: 10;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        height: 48px;
+        position: relative;
+      }
+      .time-inputs {
+        display: flex;
+        align-items: center;
+        background: rgba(42, 42, 42, 0.9);
+        border-radius: 12px;
+        padding: 0 12px;
+        gap: 15px;
+        height: 48px;
+        margin-top: 10px;
+        position: relative;
+        z-index: 0;
+      }
+      .time-input {
+        background: rgba(26, 26, 26, 0.9);
+        border: none;
+        color: white;
+        padding: 0 10px;
+        border-radius: 8px;
+        width: 130px;
+        height: 36px;
+        font-size: 16px;
+        cursor: pointer;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+      }
+      .time-input::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        opacity: 0.5;
+        cursor: pointer;
+      }
+      .time-input::-webkit-datetime-edit {
+        color: white;
+      }
+      .time-input::-webkit-datetime-edit-fields-wrapper {
+        color: white;
+      }
+      .time-input::-webkit-datetime-edit-text {
+        color: white;
+      }
+      .time-input::-webkit-datetime-edit-hour-field,
+      .time-input::-webkit-datetime-edit-minute-field {
+        color: white;
+      }
+      .time-input::-webkit-inner-spin-button {
+        display: none;
+      }
+      .time-separator {
+        color: white;
+        font-size: 20px;
+      }
+
+      #clear-search {
+        display: none;
+      }
+      h1 {
+        display: none;
+      }
+      .marker {
+        background-color: #00FF66;
+        border: 2px solid #1A1A1A;
+        border-radius: 50%;
+        color: white;
+        padding: 8px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      /* Carpark Panel Styles */
+      .carpark-panel {
+        position: fixed;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 300px;
+        background: #2A2A2A;
+        border-radius: 8px;
+        color: white;
+        font-family: Arial, sans-serif;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: none;
+        z-index: 2;
+      }
+
+      .panel-header {
+        padding: 15px;
+        border-bottom: 1px solid #3A3A3A;
+      }
+
+      .header-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .title {
+        font-size: 18px;
+        font-weight: bold;
+        color: var(--park-green);
+      }
+
+      .location-name {
+        font-size: 14px;
+        color: #FFFFFF;
+      }
+
+      .close-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+      }
+
+      .panel-content {
+        padding: 15px;
+      }
+
+      .info-section {
+        margin-bottom: 15px;
+      }
+
+      .distance-info {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #3A3A3A;
+        font-size: 14px;
+        margin-bottom: 15px;
+      }
+
+      .distance-label {
+        color: #CCCCCC;
+      }
+
+      .distance {
+        color: var(--park-green);
+        font-weight: bold;
+      }
+
+      /* Button container for alignment */
+      .button-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .save-carpark-btn,
+      .panel-button {
+        background: #00FF66;
+        color: black;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+      }
+
+      .save-carpark-btn:hover,
+      .panel-button:hover {
+        background: #00CC52;
+        box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+      }
+
+      .save-carpark-btn::before,
+      .panel-button::before {
+        content: "+";
+        font-size: 18px;
+        line-height: 1;
+        margin-right: 4px;
+      }
+
+      .login-prompt-btn {
+        width: 100%;
+        background: #2A2A2A;
+        color: #00FF66;
+        border: 1px solid #00FF66;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 12px 0;
+        transition: all 0.2s;
+      }
+
+      .login-prompt-btn:hover {
+        background: #3A3A3A;
+      }
+
+      .navigate-btn {
+        width: 100%;
+        background: #1A1A1A;
+        color: #00FF66;
+        border: 2px solid #00FF66;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 0 0 12px 0;
+        transition: all 0.2s;
+      }
+
+      .navigate-btn:hover {
+        background: #00FF66;
+        color: #1A1A1A;
+      }
+
+      /* Menu Button and Sidebar Styles */
+      .menu-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        background: rgba(42, 42, 42, 0.9);
+        border: none;
+        border-radius: 12px;
+        padding: 12px;
+        width: 48px;
+        height: 48px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease-in-out;
+      }
+
+      .menu-button.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .menu-button:hover {
+        background: #3A3A3A;
+      }
+
+      .menu-button svg {
+        width: 24px;
+        height: 24px;
+        fill: #00FF66;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: -300px;
+        width: 300px;
+        height: 100vh;
+        background: #2A2A2A;
+        z-index: 999;
+        transition: left 0.3s ease-in-out;
+        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        color: white;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .sidebar.open {
+        left: 0;
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #3A3A3A;
+      }
+
+      .sidebar-title {
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      .close-sidebar {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+      }
+
+      .sidebar-content {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .sidebar-item {
+        padding: 12px;
+        background: #1A1A1A;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .sidebar-item:hover {
+        background: #3A3A3A;
+      }
+
+      .sidebar-item a {
+        color: white;
+        text-decoration: none;
+        display: block;
+      }
+
+      .new-button {
+        position: absolute;
+        top: 20px;
+        left: 450px;
+        background: #00FF66;
+        color: black;
+        border: none;
+        border-radius: 12px;
+        padding: 6px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        z-index: 1;
+        height: 36px;
+        min-width: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        box-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+      }
+      .new-button::before {
+        content: "+";
+        font-size: 18px;
+        line-height: 1;
+      }
+      .new-button:hover {
+        background: #00CC52;
+        box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+      }
+
+      .panel-button {
+        background: #00FF66;
+        color: black;
+        border: none;
+        border-radius: 12px;
+        padding: 6px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        z-index: 1;
+        min-width: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        box-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+      }
+      .panel-button::before {
+        content: "+";
+        font-size: 18px;
+        line-height: 1;
+      }
+      .panel-button:hover {
+        background: #00CC52;
+        box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+      }
+
+      .save-carpark-btn {
+        background: #00FF66;
+        color: black;
+        border: none;
+        border-radius: 12px;
+        padding: 6px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        z-index: 1;
+        min-width: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        box-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+      }
+      .save-carpark-btn::before {
+        content: "+";
+        font-size: 18px;
+        line-height: 1;
+      }
+      .save-carpark-btn:hover {
+        background: #00CC52;
+        box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+      }
+
+      .saved-locations-container {
+        position: absolute;
+        top: 20px;
+        left: 550px;
+        display: flex;
+        gap: 12px;
+        z-index: 1;
+      }
+
+      .saved-location-button {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 6px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        height: 36px;
+        min-width: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+
+      .saved-location-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+
+      /* Dialog Styles */
+      .dialog-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .dialog {
+        background: #2A2A2A;
+        border-radius: 8px;
+        padding: 20px;
+        width: 400px;
+        color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .dialog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .dialog-title {
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      .dialog-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+      }
+
+      .dialog-content {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .dialog-field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .dialog-field label {
+        font-size: 14px;
+        color: #CCCCCC;
+      }
+
+      .dialog-field input {
+        background: #1A1A1A;
+        border: none;
+        color: white;
+        padding: 8px;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .dialog-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+      }
+
+      .save-button {
+        background: #00FF66;
+        color: #1A1A1A;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .save-button:hover {
+        background: #00CC52;
+      }
+
+      .logo {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        font-family: 'Shrikhand', cursive;
+        font-size: 36px;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .logo span {
+        color: #00FF66;
+      }
+
+      .speech-bubble-marker {
+        position: absolute;
+        width: 120px;
+        min-height: 80px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .speech-bubble {
+        position: relative;
+        background: white;
+        border: 2px solid;
+        border-radius: 8px;
+        padding: 8px 10px 14px 10px; /* bottom padding to accommodate pointer */
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        font-family: "Segoe UI", sans-serif;
+      }
+      
+      .speech-bubble-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      
+      .lots-info {
+        font-weight: 600;
+        font-size: 12px;
+      }
+      
+      .rate-info {
+        font-size: 12px;
+        line-height: 1.3;
+      }
+      
+      .speech-pointer {
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 10px solid;
+      }
+      
+      .mapboxgl-ctrl-directions {
+        background: #2A2A2A !important;
+        color: #FFFFFF !important;
+      }
+
+      /* Hide the profile switcher completely */
+      .mapbox-directions-profile {
+        display: none !important;
+      }
+
+      /* Style the route steps */
+      .mapbox-directions-steps {
+        color: #FFFFFF !important;
+        background: #2A2A2A !important;
+      }
+
+      .mapbox-directions-step {
+        color: #FFFFFF !important;
+      }
+
+      .mapbox-directions-step:hover {
+        background: #3A3A3A !important;
+      }
+
+      /* Style the inputs */
+      .mapbox-directions-inputs {
+        background: #2A2A2A !important;
+      }
+
+      .mapbox-directions-inputs input {
+        background: #1A1A1A !important;
+        color: #FFFFFF !important;
+        border: 1px solid #3A3A3A !important;
+      }
+
+      .mapbox-directions-inputs input:focus {
+        border-color: #00FF66 !important;
+        outline: none !important;
+      }
+
+      /* Style the instructions */
+      .mapbox-directions-instructions {
+        background: #2A2A2A !important;
+      }
+
+      .mapbox-directions-instructions-wrapper {
+        background: #2A2A2A !important;
+      }
+
+      .mapbox-directions-route-summary {
+        background: #1A1A1A !important;
+        color: #FFFFFF !important;
+      }
+
+      /* Style the clear buttons */
+      .mapbox-directions-clear-btn {
+        background-color: transparent !important;
+        color: #FF5555 !important;
+      }
+
+      .mapbox-directions-clear-btn:hover {
+        color: #FF7777 !important;
+      }
+
+      /* Style the icons */
+      .directions-icon {
+        background-color: #00FF66 !important;
+        border-color: #00FF66 !important;
+      }
+
+      .directions-icon-arrive {
+        background-color: #FF5555 !important;
+        border-color: #FF5555 !important;
+      }
+      
+      

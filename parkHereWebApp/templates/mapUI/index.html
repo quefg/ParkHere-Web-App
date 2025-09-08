@@ -1,0 +1,169 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ParkHere!</title>
+    <!-- Mapbox GL CSS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet" />
+
+    <!-- Mapbox Directions Plugin CSS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.css"
+        rel="stylesheet" />
+
+    <!-- Your local static CSS -->
+    <link rel="stylesheet" href="{% static 'map/main.css' %}" />
+
+    <!-- Mapbox GL JS -->
+    <script 
+        id="mapbox-gl-js" src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
+
+    <!-- Mapbox Directions Plugin JS -->
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.js"></script>
+
+    <!-- Mapbox Geocoder Plugin (for legacy search if still using) -->
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.min.js"></script>
+
+    <!-- Mapbox Search JS (new Search Box API) -->
+    <script 
+        id="search-js" defer src="https://api.mapbox.com/search-js/v1.0.0/web.js"></script>
+
+    <!-- BootStrap CSS) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+
+
+</head>
+
+<body>
+    <button class="menu-button" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+        </svg>
+    </button>
+
+    <div class="dialog-overlay" id="newLocationDialog">
+        <div class="dialog">
+            <div class="dialog-header">
+                <div class="dialog-title">New Location</div>
+                <button class="dialog-close" onclick="closeDialog()">×</button>
+            </div>
+            <div class="dialog-content">
+                <label for="locationName">Name</label>
+                <input type="text" id="locationName" placeholder="Enter location name">
+                <label for="dialogSearch">Search Location</label>
+                <div id="dialogSearch"></div>
+            </div>
+            <div class="dialog-footer">
+                <button class="save-button" onclick="saveLocation()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Menu</div>
+            <button class="close-sidebar" onclick="toggleSidebar()">×</button>
+        </div>
+        <div class="sidebar-content">
+            <div class="sidebar-item" id="profileItem" style="display: none;">
+                <a href="/user/dashboard/">Dashboard</a>
+            </div>
+            <div class="sidebar-item" id="settingsItem" style="display: none;">
+                <a href="/user/settings/">Settings</a>
+            </div>
+            <div class="sidebar-item" id="adminCarparkItem" style="display: none;">
+                <a href="/admin/carparks/">Manage Carparks</a>
+            </div>
+            <div class="sidebar-item" id="logout" style="display: none;">
+                <a href="/user/login/">Logout</a>
+            </div>
+            <div class="sidebar-item" id="authItem">
+                <a href="/user/login/">Login/Register</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <div class="search-bar" id="search-bar"></div>
+        <div class="time-inputs">
+            <input type="time" class="time-input" id="startTime" step="1800" lang="en">
+            <span class="time-separator">→</span>
+            <input type="time" class="time-input" id="endTime" step="1800" lang="en">
+        </div>
+        <button class="panel-button" id="exitDirectionsBtn" style="display:none;">Exit Directions</button>
+        <div id="directions-container" ></div>
+        <div class="card text-bg-dark fs-6" style="max-width: 40rem; display:none;" id="carparkPanel">
+            <div class="card-header" id="carParkNo">Header</div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush">
+                  <li class="list-group-item list-group-item-dark">    
+                    <div class="ms-2 me-auto">
+                    <div class="fw-bold">Address</div>
+                    <span id="address"></span>
+                  </div>
+                </li>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item list-group-item-dark">    
+                  <div class="ms-2 me-auto">
+                  <div class="fw-bold">Lots Available</div>
+                  <span id="lots"></span>
+                </div>
+              </li>
+              <li class="list-group-item list-group-item-dark">    
+                  <div class="ms-2 me-auto">
+                  <div class="fw-bold">Carpark Rate</div>
+                  <span id="rate"></span>
+                </div>
+              </li>
+              <li class="list-group-item list-group-item-dark">    
+                  <div class="ms-2 me-auto">
+                  <div class="fw-bold">Parking Type</div>
+                  <span id="typeParking"></span>
+                </div>
+              </li>
+              <li class="list-group-item list-group-item-dark">    
+                  <div class="ms-2 me-auto">
+                  <div class="fw-bold">Free Parking</div>
+                  <span id="freeParking">NIL</span>
+                </div>
+              </li>
+              <li class="list-group-item list-group-item-dark">    
+                  <div class="ms-2 me-auto">
+                  <div class="fw-bold">Distance</div>
+                  <span id="distance"></span>
+                </div>
+              </li>
+              </ul>        
+            </div>
+            <div class="card-footer">
+              <button class="save-carpark-btn" onclick="saveCarpark()" style="display: none;" id="saveBtn">Save Carpark</button>
+              <button class="panel-button" id="navigate-btn">Navigate</button>
+            </div>
+          </div>
+    </div>
+
+    <button class="new-button" onclick="openDialog()">New</button>
+    <div class="saved-locations-container" id="savedLocationsContainer">
+        <div id="savedLocationsItem">placeholder</div>
+    </div>
+
+    <div class="d-flex flex-column position-relative" style="height: 100vh;">
+        <div id="map" style="height: 100%;"></div>
+      
+      
+      </div>
+      
+    <div class="logo">
+        <span>Park</span>Here
+    </div>
+
+    <script src="{% static 'users/user.js' %}"></script>
+    <script src="{% static 'map/main.js' %}"></script>
+</body>
+
+</html>

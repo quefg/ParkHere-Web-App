@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Car Park Admin{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Shrikhand&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+
+        :root {
+            --park-green: #90EE90;
+            --text-white: #FFFFFF;
+            --accent-yellow: #FFE44D;
+            --dark-bg: #1a1d24;
+            --font-logo: 'Shrikhand', cursive;
+            --font-text: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-text);
+            background-color: var(--dark-bg);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background-color: rgba(26, 29, 36, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .nav-brand {
+            font-family: var(--font-logo);
+            font-size: 1.8rem;
+            text-decoration: none;
+            margin-right: auto;
+            white-space: nowrap;
+        }
+
+        .nav-brand span:first-child {
+            color: var(--park-green);
+        }
+
+        .nav-brand span:last-child {
+            color: var(--text-white);
+        }
+
+        .nav-link {
+            font-family: var(--font-text);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-link[href*="admin-dashboard"] {
+            color: var(--accent-yellow);
+        }
+
+        .nav-link[href*="logout"] {
+            color: var(--text-white);
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        .messages {
+            position: fixed;
+            top: 80px;
+            right: 10px;
+            left: 10px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            z-index: 1000;
+            font-family: var(--font-text);
+            pointer-events: none;
+        }
+
+        .messages li {
+            background-color: rgba(45, 48, 56, 0.9);
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+            margin-left: auto;
+            pointer-events: auto;
+        }
+
+        .messages .success {
+            border-left: 4px solid var(--park-green);
+        }
+
+        .messages .error {
+            border-left: 4px solid #f44336;
+        }
+
+        .messages .warning {
+            border-left: 4px solid var(--accent-yellow);
+        }
+
+        .messages .info {
+            border-left: 4px solid var(--text-white);
+        }
+
+        #content {
+            padding: 10px;
+            padding-top: 80px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            display: inline-block;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn i {
+            margin-right: 4px;
+        }
+
+        .btn-primary {
+            background-color: var(--park-green);
+            color: var(--dark-bg);
+        }
+
+        .btn-primary:hover {
+            background-color: #7dcc7d;
+        }
+
+        .btn-warning {
+            background-color: var(--accent-yellow);
+            color: var(--dark-bg);
+        }
+
+        .btn-warning:hover {
+            background-color: #e6d140;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+            color: var(--text-white);
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0.5rem;
+            }
+
+            .nav-brand {
+                font-size: 1.5rem;
+            }
+
+            .nav-link {
+                font-size: 0.9rem;
+            }
+
+            .btn {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+
+            #content {
+                padding-top: 70px;
+            }
+
+            .container {
+                padding: 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-brand {
+                font-size: 1.2rem;
+            }
+
+            .nav-links {
+                gap: 0.5rem;
+                padding: 0 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-container">
+        <div class="nav-links">
+            <a href="/" class="nav-brand">
+                <span>Park</span><span>Here</span>
+            </a>
+            <a href="{% url 'carpark_list' %}" class="nav-link {% if '/admin/carparks/' in request.path %}active{% endif %}">Car Parks</a>
+            <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+        </div>
+    </nav>
+
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

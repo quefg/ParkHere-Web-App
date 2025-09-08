@@ -1,0 +1,304 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1 class="dashboard-title">Your Dashboard</h1>
+
+    <div class="dashboard-section">
+        <h2 class="section-title">Saved Carparks</h2>
+        <div class="carpark-grid" id="carparkGrid">
+            <!-- Carpark cards will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <div class="dashboard-section">
+        <h2 class="section-title">Saved Locations</h2>
+        <div class="location-grid" id="locationGrid">
+            <!-- Location cards will be inserted here by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+        color: #FFFFFF;
+        margin-bottom: 30px;
+    }
+
+    .dashboard-section {
+        margin-bottom: 40px;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        color: #00FF66;
+        margin-bottom: 20px;
+    }
+
+    .carpark-grid,
+    .location-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .carpark-card,
+    .location-card {
+        background: #2A2A2A;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .carpark-header,
+    .location-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .carpark-name,
+    .location-name {
+        font-size: 1.2rem;
+        color: #FFFFFF;
+        margin: 0;
+    }
+
+    .remove-btn {
+        background: none;
+        border: none;
+        color: #FF4444;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .carpark-details,
+    .location-details {
+        margin-bottom: 15px;
+    }
+
+    .carpark-details p,
+    .location-details p {
+        color: #CCCCCC;
+        margin: 5px 0;
+        font-size: 0.9rem;
+    }
+
+    .carpark-saved-at,
+    .location-saved-at {
+        color: #888888;
+        font-size: 0.8rem;
+    }
+
+    .carpark-actions,
+    .location-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 8px;
+        border-radius: 4px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .action-btn.navigate {
+        background: #1A1A1A;
+        color: #00FF66;
+        border: 2px solid #00FF66;
+    }
+
+    .action-btn.navigate:hover {
+        background: #00FF66;
+        color: #1A1A1A;
+    }
+
+    .no-items {
+        grid-column: 1 / -1;
+        text-align: center;
+        color: #CCCCCC;
+        padding: 40px;
+        background: #2A2A2A;
+        border-radius: 8px;
+    }
+</style>
+
+<script>
+    // Load saved carparks when the page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        loadSavedCarparks();
+        loadSavedLocations();
+    });
+
+    function loadSavedCarparks() {
+        const carparkGrid = document.getElementById('carparkGrid');
+        const savedCarparks = JSON.parse(localStorage.getItem('savedCarparks') || '[]');
+
+        if (savedCarparks.length === 0) {
+            carparkGrid.innerHTML = `
+                <div class="no-items">No saved carparks yet!</div>
+            `;
+            return;
+        }
+
+        // Sort carparks by saved date (newest first)
+        savedCarparks.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+
+        // Create HTML for each carpark
+        const carparkCards = savedCarparks.map(carpark => `
+            <div class="carpark-card">
+                <div class="carpark-header">
+                    <h3 class="carpark-name">${carpark.locationName}</h3>
+                    <button class="remove-btn" onclick="removeCarpark('${carpark.locationName}')">×</button>
+                </div>
+                <div class="carpark-details">
+                    <p class="carpark-address">${carpark.address}</p>
+                    <p class="carpark-lots">${carpark.lots}</p>
+                    <p class="carpark-rate">${carpark.rate}</p>
+                    <p class="carpark-saved-at">Saved on: ${new Date(carpark.savedAt).toLocaleDateString()}</p>
+                </div>
+                <div class="carpark-actions">
+                    <button class="action-btn navigate" onclick="navigateToSavedCarpark('${carpark.locationName}')">Navigate</button>
+                </div>
+            </div>
+        `).join('');
+
+        carparkGrid.innerHTML = carparkCards;
+    }
+
+    function loadSavedLocations() {
+        const locationGrid = document.getElementById('locationGrid');
+
+        // Fetch saved locations from the server
+        fetch('/user/saved-locations/')
+            .then(response => response.json())
+            .then(data => {
+                const locations = data.locations;
+
+                if (locations.length === 0) {
+                    locationGrid.innerHTML = `
+                        <div class="no-items">No saved locations yet!</div>
+                    `;
+                    return;
+                }
+
+                // Create HTML for each location
+                const locationCards = locations.map(location => `
+                    <div class="location-card">
+                        <div class="location-header">
+                            <h3 class="location-name">${location.name}</h3>
+                            <button class="remove-btn" onclick="removeLocation(${location.id})">×</button>
+                        </div>
+                        <div class="location-details">
+                            <p class="location-address">${location.address || 'No address provided'}</p>
+                        </div>
+                        <div class="location-actions">
+                            <button class="action-btn navigate" onclick="navigateToSavedLocation(${location.latitude}, ${location.longitude})">Navigate</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                locationGrid.innerHTML = locationCards;
+            })
+            .catch(error => {
+                console.error('Error fetching saved locations:', error);
+                locationGrid.innerHTML = `
+                    <div class="no-items">Error loading saved locations. Please try again later.</div>
+                `;
+            });
+    }
+
+    function removeCarpark(carparkName) {
+        if (confirm('Are you sure you want to remove this carpark from your saved list?')) {
+            // Get saved carparks from localStorage
+            const savedCarparks = JSON.parse(localStorage.getItem('savedCarparks') || '[]');
+
+            // Remove the carpark
+            const updatedCarparks = savedCarparks.filter(carpark => carpark.locationName !== carparkName);
+
+            // Save back to localStorage
+            localStorage.setItem('savedCarparks', JSON.stringify(updatedCarparks));
+
+            // Refresh the page to show updated list
+            location.reload();
+        }
+    }
+
+    function removeLocation(locationId) {
+        if (confirm('Are you sure you want to remove this location from your saved list?')) {
+            // Send request to delete the location
+            fetch(`/user/delete-location/${locationId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // Reload the locations
+                        loadSavedLocations();
+                    } else {
+                        alert('Failed to remove location. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error removing location:', error);
+                    alert('An error occurred while removing the location.');
+                });
+        }
+    }
+
+    function navigateToSavedLocation(latitude, longitude) {
+        const url = `/map?lat=${latitude}&lng=${longitude}`;
+        window.location.href = url; // Open map and autofill destination
+    }
+
+    function navigateToSavedCarpark(carparkName) {
+        fetch(`/map/api/carpark-details/${encodeURIComponent(carparkName)}/`)
+            .then((response) => {
+                if (!response.ok) throw new Error("Carpark not found");
+                return response.json();
+            })
+            .then((data) => {
+                const { latitude, longitude } = data;
+                const url = `/map?lat=${latitude}&lng=${longitude}`;
+                window.location.href = url;
+            })
+            .catch((err) => {
+                console.error(err);
+                alert("Could not retrieve carpark location.");
+            });
+    }
+
+    // Helper function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

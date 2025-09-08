@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ParkHere!{% endblock %}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Shrikhand&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+
+        :root {
+            --park-green: #90EE90;
+            --text-white: #FFFFFF;
+            --accent-yellow: #FFE44D;
+            --dark-bg: #1a1d24;
+            --font-logo: 'Shrikhand', cursive;
+            --font-text: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-text);
+            background-color: var(--dark-bg);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 2rem;
+            background-color: rgba(26, 29, 36, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nav-brand {
+            font-family: var(--font-logo);
+            font-size: 2rem;
+            text-decoration: none;
+            margin-right: auto;
+        }
+
+        .nav-brand span:first-child {
+            color: var(--park-green);
+        }
+
+        .nav-brand span:last-child {
+            color: var(--text-white);
+        }
+
+        .nav-link {
+            font-family: var(--font-text);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link[href*="login"] {
+            color: var(--text-white);
+        }
+
+        .nav-link[href*="register"] {
+            color: var(--park-green);
+        }
+
+        .nav-link[href*="dashboard"] {
+            color: var(--accent-yellow);
+        }
+
+        .nav-link[href*="logout"] {
+            color: var(--accent-yellow);
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        .messages {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            z-index: 1000;
+            font-family: var(--font-text);
+        }
+
+        .messages li {
+            background-color: rgba(45, 48, 56, 0.9);
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .messages .success {
+            border-left: 4px solid var(--park-green);
+        }
+
+        .messages .error {
+            border-left: 4px solid #f44336;
+        }
+
+        .messages .warning {
+            border-left: 4px solid var(--accent-yellow);
+        }
+
+        .messages .info {
+            border-left: 4px solid var(--text-white);
+        }
+
+        #content {
+            padding: 20px;
+            padding-top: 100px;
+        }
+    </style>
+</head>
+<body>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <nav class="nav-container">
+        <div class="nav-links">
+            <a href="/map/" class="nav-brand">
+                <span>Park</span><span>Here</span>
+            </a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}">Dashboard</a>
+                <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-link {% if request.path == '/login/' %}active{% endif %}">Login</a>
+                <a href="{% url 'register' %}" class="nav-link {% if request.path == '/register/' %}active{% endif %}">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

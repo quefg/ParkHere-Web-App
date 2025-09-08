@@ -1,0 +1,179 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="carpark-panel" id="carparkPanel">
+    <div class="panel-header">
+        <div class="header-content">
+            <div class="location-name" id="locationName"></div>
+            <button class="close-btn" onclick="closePanel()">×</button>
+        </div>
+    </div>
+    <div class="panel-content">
+        <div class="cover-photo">
+            <img src="{{ carpark.image_url|default:'/static/images/default-carpark.jpg' }}" alt="Carpark Image">
+        </div>
+        <div class="details-section">
+            <div class="rates-section">
+                <div class="rate-period">
+                    <div class="time">Mon - Fri</div>
+                    <div class="hours">0400 - 1700hrs</div>
+                    <div class="rate" id="weekdayRate"></div>
+                </div>
+                <div class="rate-period">
+                    <div class="time">1700 - 0400hrs</div>
+                    <div class="rate" id="nightRate"></div>
+                </div>
+                <div class="rate-period">
+                    <div class="time">Sat - Sun & PH</div>
+                    <div class="hours">0700 - 0400hrs</div>
+                    <div class="rate" id="weekendRate"></div>
+                </div>
+            </div>
+            <div class="distance-section">
+                <span class="distance" id="distanceText"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.carpark-panel {
+    position: fixed;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 300px;
+    background: #2A2A2A;
+    border-radius: 8px;
+    color: white;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
+.panel-header {
+    padding: 15px;
+    border-bottom: 1px solid #3A3A3A;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.location-name {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.panel-content {
+    padding: 0;
+}
+
+.cover-photo {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+}
+
+.cover-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.details-section {
+    padding: 15px;
+}
+
+.rates-section {
+    margin-bottom: 15px;
+}
+
+.rate-period {
+    margin-bottom: 12px;
+}
+
+.rate-period:last-child {
+    margin-bottom: 0;
+}
+
+.time {
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.hours {
+    color: #CCCCCC;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.rate {
+    color: #CCCCCC;
+    font-size: 14px;
+}
+
+.distance-section {
+    padding-top: 10px;
+    border-top: 1px solid #3A3A3A;
+}
+
+.distance {
+    color: #00FF66;
+    font-size: 14px;
+}
+</style>
+
+<script>
+// Make the showPanel function available globally
+window.showCarparkPanel = function(carparkData) {
+    const panel = document.getElementById('carparkPanel');
+    
+    // Update location name
+    document.getElementById('locationName').textContent = carparkData.name;
+    
+    // Update rates based on carpark type and location
+    const isCentralArea = ['ACB', 'BBB', 'BRB1', 'CY', 'DUXM', 'HLM', 'KAB', 'KAM', 'KAS', 'PRM', 'SLS', 'SR1', 'SR2', 'TPM', 'UCS', 'WCB'].includes(carparkData.carParkNo);
+    
+    // Format rates based on carpark type and location
+    const weekdayRate = isCentralArea ? 
+        'First hour $2.60\nSubsequent 30mins $1.30' :
+        'First hour $1.20\nSubsequent 30mins $0.60';
+    
+    const nightRate = isCentralArea ?
+        '$3.00 per entry' :
+        '$2.00 per entry';
+    
+    const weekendRate = carparkData.nightParking ?
+        'First hour $2.60\nSubsequent 30mins $1.30' :
+        'First hour $1.20\nSubsequent 30mins $0.60';
+    
+    // Update rate displays
+    document.getElementById('weekdayRate').textContent = weekdayRate;
+    document.getElementById('nightRate').textContent = nightRate;
+    document.getElementById('weekendRate').textContent = weekendRate;
+    
+    // Update distance if available
+    document.getElementById('distanceText').textContent = carparkData.distance || 'Set destination to see distance';
+    
+    // Show the panel
+    panel.style.display = 'block';
+}
+
+function closePanel() {
+    document.getElementById('carparkPanel').style.display = 'none';
+}
+</script>
+{% endblock %}

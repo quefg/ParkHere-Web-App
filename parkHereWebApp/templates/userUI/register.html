@@ -1,0 +1,381 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+{% block title %}Registration - ParkHere{% endblock %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Shrikhand&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+
+    :root {
+        --park-green: #90EE90;
+        --text-white: #FFFFFF;
+        --accent-yellow: #FFE44D;
+        --dark-bg: #1a1d24;
+        --font-logo: 'Shrikhand', cursive;
+        --font-text: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: var(--font-text);
+        background-color: var(--dark-bg);
+        color: var(--text-white);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .register-container {
+        background: rgba(45, 48, 56, 0.9);
+        padding: 2rem;
+        border-radius: 15px;
+        width: 100%;
+        max-width: 900px;
+        display: flex;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        gap: 2rem;
+    }
+
+    .register-form {
+        flex: 1;
+        padding: 1rem 0.5rem;
+        max-width: 420px;
+    }
+
+    .brand-side {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: url('{% static "images/road-bg.jpg" %}') center/cover;
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        min-width: 45%;
+    }
+
+    .brand-side::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 10px;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        margin-bottom: 2.5rem;
+        font-family: var(--font-text);
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .form-group {
+        margin-bottom: 1.2rem;
+        width: 100%;
+    }
+
+    .input-wrapper {
+        position: relative;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 25px;
+        background: white;
+        font-size: 1rem;
+        box-sizing: border-box;
+        font-family: var(--font-text);
+        height: 45px;
+        padding-right: 45px;
+    }
+
+    .input-label {
+        color: var(--text-white);
+        font-size: 0.9rem;
+        font-family: var(--font-text);
+        margin-bottom: 0.2rem;
+        display: block;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        width: 24px;
+        height: 24px;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+    }
+
+    .password-toggle:hover {
+        opacity: 1;
+    }
+
+    .password-toggle svg {
+        width: 24px;
+        height: 24px;
+        fill: #50FA7B;
+        transition: fill 0.2s ease;
+    }
+
+    .password-toggle.hidden svg.eye-open {
+        display: none;
+    }
+
+    .password-toggle:not(.hidden) svg.eye-closed {
+        display: none;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: var(--font-text);
+        font-weight: 500;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-yellow);
+        color: #333;
+        font-size: 1.2rem;
+    }
+
+    .btn-primary:hover {
+        background-color: #f0c800;
+    }
+
+    .terms-checkbox {
+        display: flex;
+        align-items: center;
+        margin: 1rem 0;
+    }
+
+    .terms-checkbox input[type="checkbox"] {
+        width: auto;
+        margin-right: 10px;
+    }
+
+    .terms-checkbox label {
+        color: var(--accent-yellow);
+        cursor: pointer;
+        font-family: var(--font-text);
+    }
+
+    .brand-logo {
+        font-family: var(--font-logo);
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+        line-height: 1;
+    }
+
+    .brand-logo span:first-child {
+        color: var(--park-green);
+    }
+
+    .brand-logo span:last-child {
+        color: var(--text-white);
+    }
+
+    .brand-side p {
+        color: var(--accent-yellow);
+        font-size: 1.5rem;
+        margin: 0.5rem 0;
+        position: relative;
+        z-index: 1;
+        font-family: var(--font-text);
+        font-weight: 500;
+    }
+
+    .login-btn {
+        background-color: var(--accent-yellow);
+        color: #333;
+        padding: 10px 30px;
+        border-radius: 25px;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 1rem;
+        font-family: var(--font-text);
+        font-size: 1.2rem;
+        position: relative;
+        z-index: 1;
+        font-weight: 500;
+    }
+
+    .login-btn:hover {
+        background-color: #f0c800;
+    }
+
+    .error-message {
+        color: #ff4d4d;
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+        font-size: 0.85rem;
+        padding: 6px 12px;
+        border-radius: 4px;
+        background-color: rgba(255, 77, 77, 0.08);
+        display: flex;
+        align-items: center;
+    }
+</style>
+
+<div class="register-container">
+    <div class="register-form">
+        <h1>Registration</h1>
+        <form method="post" action="{% url 'register' %}" id="registerForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="email" name="email" id="email" placeholder="Email" required>
+                <div class="error-message" id="emailError" style="display: none;"></div>
+                {% if form.email.errors and not request.is_ajax %}
+                    <div class="error-message" id="formEmailError" style="display: none;">{{ form.email.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label class="input-label">Create Password</label>
+                <div class="input-wrapper">
+                    <input type="password" name="password1" placeholder="Enter your password" required>
+                    <span class="password-toggle" onclick="togglePassword('password1')">
+                        <svg class="eye-open" viewBox="0 0 24 24">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                        <svg class="eye-closed" viewBox="0 0 24 24">
+                            <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+                        </svg>
+                    </span>
+                </div>
+                {% if form.password1.errors %}
+                    <div class="error-message">{{ form.password1.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label class="input-label">Confirm Password</label>
+                <div class="input-wrapper">
+                    <input type="password" name="password2" placeholder="Re-enter your password" required>
+                    <span class="password-toggle" onclick="togglePassword('password2')">
+                        <svg class="eye-open" viewBox="0 0 24 24">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                        <svg class="eye-closed" viewBox="0 0 24 24">
+                            <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+                        </svg>
+                    </span>
+                </div>
+                {% if form.password2.errors %}
+                    <div class="error-message">{{ form.password2.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="terms-checkbox">
+                <input type="checkbox" id="terms" required>
+                <label for="terms">I agree to the Terms & Conditions</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+    </div>
+    <div class="brand-side">
+        <div class="brand-logo">
+            <span>Park</span><span>Here</span>
+        </div>
+        <p>Already have an account?</p>
+        <a href="{% url 'login' %}" class="login-btn">Login</a>
+    </div>
+</div>
+
+<script>
+function togglePassword(fieldName) {
+    const passwordInput = document.querySelector(`input[name="${fieldName}"]`);
+    const toggle = passwordInput.nextElementSibling;
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggle.classList.remove('hidden');
+    } else {
+        passwordInput.type = 'password';
+        toggle.classList.add('hidden');
+    }
+}
+
+// Initialize password toggle state
+document.addEventListener('DOMContentLoaded', function() {
+    const toggles = document.querySelectorAll('.password-toggle');
+    toggles.forEach(toggle => toggle.classList.add('hidden'));
+});
+
+let emailTimeout;
+const emailInput = document.getElementById('email');
+const emailError = document.getElementById('emailError');
+const formEmailError = document.getElementById('formEmailError');
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+emailInput.addEventListener('input', function() {
+    clearTimeout(emailTimeout);
+    emailError.style.display = 'none';
+    if (formEmailError) {
+        formEmailError.style.display = 'none';
+    }
+    
+    if (this.value) {
+        emailTimeout = setTimeout(() => {
+            fetch('{% url "check_email" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    email: this.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    emailError.textContent = 'User with this Email already exists.';
+                    emailError.style.display = 'flex';
+                    if (formEmailError) {
+                        formEmailError.style.display = 'none';
+                    }
+                } else {
+                    emailError.style.display = 'none';
+                    if (formEmailError) {
+                        formEmailError.style.display = 'none';
+                    }
+                }
+            });
+        }, 500);
+    }
+});
+
+// Show form error on page load if it exists
+document.addEventListener('DOMContentLoaded', function() {
+    const formEmailError = document.getElementById('formEmailError');
+    if (formEmailError) {
+        formEmailError.style.display = 'flex';
+    }
+});
+</script>
+{% endblock %}

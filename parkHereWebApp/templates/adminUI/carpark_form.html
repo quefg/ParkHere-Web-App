@@ -1,0 +1,844 @@
+{% extends 'adminUI/base.html' %}
+
+{% block content %}
+<script id="search-js" defer src="https://api.mapbox.com/search-js/v1.0.0/web.js"></script>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-title">{% if form.instance.pk %}Edit Carpark{% else %}Add New Carpark{% endif %}</h2>
+        <a href="{% url 'carpark_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <form method="post" class="carpark-form">
+    {% csrf_token %}
+        
+        <!-- Basic Information Section -->
+        <div class="form-section mb-4">
+            <h3 class="section-title">Basic Information</h3>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.carParkNo.id_for_label }}" class="form-label">Car Park Number</label>
+                    <input type="text" 
+                           name="{{ form.carParkNo.name }}" 
+                           id="{{ form.carParkNo.id_for_label }}" 
+                           value="{{ form.carParkNo.value|default:'' }}"
+                           class="form-control {% if form.carParkNo.errors %}is-invalid{% endif %}"
+                           required
+                           pattern="[A-Z0-9]+"
+                           title="Car park number must contain only uppercase letters and numbers"
+                           placeholder="Enter car park number">
+                    <div class="form-text">
+                        <i class="fas fa-info-circle"></i> Car park number must be unique and contain only uppercase letters and numbers
+                    </div>
+                    {% if form.carParkNo.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.carParkNo.errors.0 }}
+                    </div>
+                    {% endif %}
+                    <div id="carpark-duplicate-error" class="invalid-feedback" style="display: none;">
+                        This car park number already exists. Please choose a different one.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location Information Section -->
+        <div class="form-section mb-4">
+            <h3 class="section-title">Location Information</h3>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div>
+                        <mapbox-search-box
+                          access-token="pk.eyJ1IjoiYXl5cmllbCIsImEiOiJjbTZxNWFsYWwxbWlzMmpvdHlyenRiYzZ0In0.IWvVnIuTQ_NuNFjn06SOXg"
+                          proximity="0,0"
+                          value="{{ address }}"
+                        >
+                        </mapbox-search-box>
+                        <input type="hidden" name="xCoord" id="xCoord" value="{{ form.xCoord.value|default:'' }}">
+                        <input type="hidden" name="yCoord" id="yCoord" value="{{ form.yCoord.value|default:'' }}">
+                        <input type="hidden" name="address" id="address" value="{{ form.address.value|default:'' }}">                         
+                      </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Parking Details Section -->
+        <div class="form-section mb-4">
+            <h3 class="section-title">Parking Details</h3>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.carParkType.id_for_label }}" class="form-label">Car Park Type</label>
+                    <select name="{{ form.carParkType.name }}" id="{{ form.carParkType.id_for_label }}" class="form-select">
+                        <option value="">Select Type</option>
+                        <option value="SURFACE CAR PARK" {% if form.carParkType.value == 'SURFACE CAR PARK' %}selected{% endif %}>Surface Car Park</option>
+                        <option value="MULTI-STOREY CAR PARK" {% if form.carParkType.value == 'MULTI-STOREY CAR PARK' %}selected{% endif %}>Multi-Storey Car Park</option>
+                        <option value="BASEMENT CAR PARK" {% if form.carParkType.value == 'BASEMENT CAR PARK' %}selected{% endif %}>Basement Car Park</option>
+                        <option value="MECHANISED CAR PARK" {% if form.carParkType.value == 'MECHANISED CAR PARK' %}selected{% endif %}>Mechanised Car Park</option>
+                    </select>
+                    {% if form.carParkType.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.carParkType.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.typeOfParkingSystem.id_for_label }}" class="form-label">Parking System</label>
+                    <select name="{{ form.typeOfParkingSystem.name }}" id="{{ form.typeOfParkingSystem.id_for_label }}" class="form-select">
+                        <option value="">Select System</option>
+                        <option value="ELECTRONIC PARKING" {% if form.typeOfParkingSystem.value == 'ELECTRONIC PARKING' %}selected{% endif %}>Electronic Parking</option>
+                        <option value="COUPON PARKING" {% if form.typeOfParkingSystem.value == 'COUPON PARKING' %}selected{% endif %}>Coupon Parking</option>
+                        <option value="SEASON PARKING" {% if form.typeOfParkingSystem.value == 'SEASON PARKING' %}selected{% endif %}>Season Parking</option>
+                    </select>
+                    {% if form.typeOfParkingSystem.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.typeOfParkingSystem.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.shortTermParking.id_for_label }}" class="form-label">Short Term Parking</label>
+                    <select name="{{ form.shortTermParking.name }}" id="{{ form.shortTermParking.id_for_label }}" class="form-select">
+                        <option value="">Select Option</option>
+                        <option value="WHOLE DAY" {% if form.shortTermParking.value == 'WHOLE DAY' %}selected{% endif %}>Whole Day</option>
+                        <option value="7AM-10.30PM" {% if form.shortTermParking.value == '7AM-10.30PM' %}selected{% endif %}>7AM-10.30PM</option>
+                        <option value="NO" {% if form.shortTermParking.value == 'NO' %}selected{% endif %}>No</option>
+                    </select>
+                    {% if form.shortTermParking.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.shortTermParking.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.weekdayRate1.id_for_label }}" class="form-label">Weekday Rate (First Hour)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" 
+                               name="{{ form.weekdayRate1.name }}" 
+                               id="{{ form.weekdayRate1.id_for_label }}" 
+                               value="{{ form.weekdayRate1.value|default:'' }}"
+                               class="form-control" 
+                               step="0.01" 
+                               min="0"
+                               placeholder="0.00"
+                               oninput="validateRate(this)">
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle"></i> Enter the rate for the first hour on weekdays
+                    </div>
+                    <div id="weekdayRate1-error" class="invalid-feedback" style="display: none;">
+                        Please enter a valid positive number with up to 2 decimal places
+                    </div>
+                    {% if form.weekdayRate1.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.weekdayRate1.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.weekdayRate2.id_for_label }}" class="form-label">Weekday Rate (Subsequent Hours)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" 
+                               name="{{ form.weekdayRate2.name }}" 
+                               id="{{ form.weekdayRate2.id_for_label }}" 
+                               value="{{ form.weekdayRate2.value|default:'' }}"
+                               class="form-control" 
+                               step="0.01" 
+                               min="0"
+                               placeholder="0.00"
+                               oninput="validateRate(this)">
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle"></i> Enter the rate for subsequent hours on weekdays
+                    </div>
+                    <div id="weekdayRate2-error" class="invalid-feedback" style="display: none;">
+                        Please enter a valid positive number with up to 2 decimal places
+                    </div>
+                    {% if form.weekdayRate2.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.weekdayRate2.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.weekendRate.id_for_label }}" class="form-label">Weekend/PH Rate (Per Hour)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" 
+                               name="{{ form.weekendRate.name }}" 
+                               id="{{ form.weekendRate.id_for_label }}" 
+                               value="{{ form.weekendRate.value|default:'' }}"
+                               class="form-control" 
+                               step="0.01" 
+                               min="0"
+                               placeholder="0.00"
+                               oninput="validateRate(this)">
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle"></i> Enter the rate for weekends and public holidays
+                    </div>
+                    <div id="weekendRate-error" class="invalid-feedback" style="display: none;">
+                        Please enter a valid positive number with up to 2 decimal places
+                    </div>
+                    {% if form.weekendRate.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.weekendRate.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Facility Information Section -->
+        <div class="form-section mb-4">
+            <h3 class="section-title">Facility Information</h3>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.carParkDecks.id_for_label }}" class="form-label">Number of Decks</label>
+                    <select name="{{ form.carParkDecks.name }}" id="{{ form.carParkDecks.id_for_label }}" class="form-select">
+                        <option value="">Select Number of Decks</option>
+                        {% for i in "123456789"|make_list %}
+                        <option value="{{ i }}" {% if form.carParkDecks.value == i %}selected{% endif %}>{{ i }}</option>
+                        {% endfor %}
+                        <option value="10" {% if form.carParkDecks.value == 10 %}selected{% endif %}>10</option>
+                        <option value="11" {% if form.carParkDecks.value == 11 %}selected{% endif %}>More than 10</option>
+                    </select>
+                    {% if form.carParkDecks.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.carParkDecks.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.gantryHeight.id_for_label }}" class="form-label">Gantry Height (m)</label>
+                    <select name="{{ form.gantryHeight.name }}" id="{{ form.gantryHeight.id_for_label }}" class="form-select">
+                        <option value="">Select Height</option>
+                        {% for i in "123456789"|make_list %}
+                        <option value="{{ i }}" {% if form.gantryHeight.value == i %}selected{% endif %}>{{ i }}m</option>
+                        {% endfor %}
+                        <option value="10" {% if form.gantryHeight.value == 10 %}selected{% endif %}>10m</option>
+                        <option value="11" {% if form.gantryHeight.value == 11 %}selected{% endif %}>More than 10m</option>
+                    </select>
+                    {% if form.gantryHeight.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.gantryHeight.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.freeParking.id_for_label }}" class="form-label">Free Parking</label>
+                    <select name="{{ form.freeParking.name }}" id="{{ form.freeParking.id_for_label }}" class="form-select">
+                        <option value="NO" {% if form.freeParking.value == 'NO' %}selected{% endif %}>No</option>
+                        <option value="YES" {% if form.freeParking.value == 'YES' %}selected{% endif %}>Yes</option>
+                    </select>
+                    {% if form.freeParking.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.freeParking.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Features Section -->
+        <div class="form-section mb-4">
+            <h3 class="section-title">Additional Features</h3>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <div class="form-check">
+                        {{ form.nightParking }}
+                        <label class="form-check-label" for="{{ form.nightParking.id_for_label }}">Night Parking Available</label>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="form-check">
+                        {{ form.carParkBasement }}
+                        <label class="form-check-label" for="{{ form.carParkBasement.id_for_label }}">Basement Parking</label>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="form-check">
+                        {{ form.centralArea }}
+                        <label class="form-check-label" for="{{ form.centralArea.id_for_label }}">Central Area</label>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="form-check">
+                        {{ form.peakHour }}
+                        <label class="form-check-label" for="{{ form.peakHour.id_for_label }}">Peak Hour Charges Apply</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Peak Hour Times Section -->
+        <div class="form-section peak-hour-times mb-4" style="display: none;">
+            <h3 class="section-title">Peak Hour Times</h3>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.peakHourStart.id_for_label }}" class="form-label">Peak Hour Start</label>
+                    {{ form.peakHourStart }}
+                    {% if form.peakHourStart.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.peakHourStart.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.peakHourEnd.id_for_label }}" class="form-label">Peak Hour End</label>
+                    {{ form.peakHourEnd }}
+                    {% if form.peakHourEnd.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.peakHourEnd.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> {% if form.instance.pk %}Update{% else %}Save{% endif %} Carpark
+            </button>
+        </div>
+</form>
+</div>
+
+<style>
+.page-title {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.carpark-form {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.form-section {
+    background-color: rgba(255, 255, 255, 0.03);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    color: var(--text-white);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-label {
+    color: var(--text-white);
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.form-control,
+.form-select {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-white);
+    padding: 10px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--park-green);
+    color: var(--text-white);
+    box-shadow: 0 0 0 0.2rem rgba(0, 255, 0, 0.25);
+}
+
+.form-select option {
+    background-color: var(--dark-bg);
+    color: var(--text-white);
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.form-check-input {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-top: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.form-check-input:checked {
+    background-color: var(--park-green);
+    border-color: var(--park-green);
+}
+
+.form-check-label {
+    color: var(--text-white);
+    user-select: none;
+}
+
+.invalid-feedback {
+    color: #ff6b6b;
+    font-size: 0.875rem;
+    margin-top: 4px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--park-green);
+    border-color: var(--park-green);
+    color: var(--dark-bg);
+}
+
+.btn-primary:hover {
+    background-color: #00cc00;
+    border-color: #00cc00;
+}
+
+.btn-secondary {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-white);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.form-text {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.875rem;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-text i {
+    color: var(--park-green);
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 1.2rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+    }
+
+    .form-control,
+    .form-select {
+        padding: 8px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+    }
+
+    .form-section {
+        padding: 15px;
+    }
+}
+
+.input-group {
+    display: flex;
+    align-items: stretch;
+}
+
+.input-group-text {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-white);
+    padding: 10px 12px;
+    border-radius: 4px 0 0 4px;
+    display: flex;
+    align-items: center;
+}
+
+.input-group .form-control {
+    flex: 1;
+    border-radius: 0 4px 4px 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-white);
+    padding: 10px;
+}
+
+.input-group .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--park-green);
+    color: var(--text-white);
+    box-shadow: 0 0 0 0.2rem rgba(0, 255, 0, 0.25);
+}
+
+.input-group .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Remove spinner buttons from number inputs */
+.input-group input[type="number"]::-webkit-outer-spin-button,
+.input-group input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.input-group input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.form-control.is-invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}
+
+.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.carpark-form');
+    const carparkNoInput = document.getElementById('{{ form.carParkNo.id_for_label }}');
+    const duplicateError = document.getElementById('carpark-duplicate-error');
+    let hasAttemptedSubmit = false;
+    const isEditMode = {% if form.instance.pk %}true{% else %}false{% endif %};
+    const currentId = {% if form.instance.pk %}'{{ form.instance.pk }}'{% else %}null{% endif %};
+
+    const searchBox = document.querySelector('mapbox-search-box')
+    if ('{{ address }}') {
+        searchBox.value = "{{ address }}";  // Set the value of the search box to the address
+    }
+    // set the options property
+    searchBox.options = {
+        language: 'en',
+        country: 'SG'
+    }
+
+    // add an event listener to handle the `retrieve` event
+    searchBox.addEventListener('retrieve', (e) => {
+        const feature = e.detail.features?.[0];  // Safely access the first feature
+        if (!feature || !feature.geometry) {
+            console.warn("No valid geometry found in search result", e.detail);
+            return;
+        }
+
+        const [lng, lat] = feature.geometry.coordinates;
+        const address = feature.properties.name;
+        console.log('Selected Coordinates:', lat, lng);
+        console.log("Selected Addr:", address);
+
+        // Set the values in the respective fields
+        document.getElementById('xCoord').value = lng;
+        document.getElementById('yCoord').value = lat;
+        document.getElementById('address').value = address;
+    });
+
+    // Hide all error messages initially
+    document.querySelectorAll('.invalid-feedback').forEach(el => {
+        el.style.display = 'none';
+    });
+
+    // Convert carpark number to uppercase (keep this as immediate feedback)
+    if (carparkNoInput) {
+        carparkNoInput.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    }
+
+    // Rate validation function
+    function validateRate(input) {
+        console.log(`Validating rate input: ${input.name}`, input.value);
+        // Create error div ID from input name
+        const errorDivId = `${input.name}-error`;
+        const errorDiv = document.getElementById(errorDivId);
+        console.log('Looking for error div:', errorDivId);
+        
+        if (!errorDiv) {
+            console.warn(`Error div not found for ${errorDivId}`);
+            return true; // Continue with validation if error div not found
+        }
+
+        const value = input.value.trim();
+        
+        // Allow empty values (null)
+        if (value === '') {
+            console.log(`${input.name}: Empty value accepted`);
+            input.classList.remove('is-invalid');
+            errorDiv.style.display = 'none';
+            return true;
+        }
+
+        // Check if the value is a valid number
+        const numValue = parseFloat(value);
+        if (isNaN(numValue)) {
+            console.log(`${input.name}: Invalid number`);
+            input.classList.add('is-invalid');
+            errorDiv.style.display = 'block';
+            return false;
+        }
+
+        // Check if the value is negative
+        if (numValue < 0) {
+            console.log(`${input.name}: Negative value not allowed`);
+            input.classList.add('is-invalid');
+            errorDiv.style.display = 'block';
+            return false;
+        }
+
+        // Check if the value has more than 2 decimal places
+        const decimalPlaces = (value.split('.')[1] || '').length;
+        if (decimalPlaces > 2) {
+            console.log(`${input.name}: Too many decimal places`);
+            input.classList.add('is-invalid');
+            errorDiv.style.display = 'block';
+            return false;
+        }
+
+        // If all validations pass
+        console.log(`${input.name}: Validation passed`);
+        input.classList.remove('is-invalid');
+        errorDiv.style.display = 'none';
+        return true;
+    }
+
+    // Update the error div IDs in the HTML to match input names
+    const weekdayRate1Error = document.getElementById('weekdayRate1-error');
+    if (weekdayRate1Error) {
+        weekdayRate1Error.id = '{{ form.weekdayRate1.name }}-error';
+    }
+    const weekdayRate2Error = document.getElementById('weekdayRate2-error');
+    if (weekdayRate2Error) {
+        weekdayRate2Error.id = '{{ form.weekdayRate2.name }}-error';
+    }
+    const weekendRateError = document.getElementById('weekendRate-error');
+    if (weekendRateError) {
+        weekendRateError.id = '{{ form.weekendRate.name }}-error';
+    }
+
+    // Dropdown configuration with Django template field IDs
+    const dropdowns = {
+        '{{ form.carParkType.id_for_label }}': 'Car Park Type',
+        '{{ form.typeOfParkingSystem.id_for_label }}': 'Parking System',
+        '{{ form.shortTermParking.id_for_label }}': 'Short Term Parking',
+        '{{ form.carParkDecks.id_for_label }}': 'Number of Decks',
+        '{{ form.gantryHeight.id_for_label }}': 'Gantry Height',
+        '{{ form.freeParking.id_for_label }}': 'Free Parking'
+    };
+
+    const defaultValues = {
+        '{{ form.carParkType.id_for_label }}': 'Select Type',
+        '{{ form.typeOfParkingSystem.id_for_label }}': 'Select System',
+        '{{ form.shortTermParking.id_for_label }}': 'Select Option',
+        '{{ form.carParkDecks.id_for_label }}': 'Select Number of Decks',
+        '{{ form.gantryHeight.id_for_label }}': 'Select Height',
+        '{{ form.freeParking.id_for_label }}': 'No'
+    };
+
+    // Function to validate dropdowns
+    function validateDropdowns() {
+        let isValid = true;
+        const errors = [];
+
+        // Remove any existing error messages
+        document.querySelectorAll('.dropdown-error').forEach(el => el.remove());
+
+        // Check each dropdown
+        Object.entries(dropdowns).forEach(([id, label]) => {
+            const select = document.getElementById(id);
+            if (!select) {
+                console.log(`Dropdown not found: ${id}`);
+                return;
+            }
+            
+            const value = select.value.trim();
+            select.classList.remove('is-invalid');
+            
+            // Check if value is empty or matches default placeholder
+            if (!value || value === defaultValues[id]) {
+                isValid = false;
+                select.classList.add('is-invalid');
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback dropdown-error d-block';
+                errorDiv.textContent = `Please select a ${label}`;
+                select.parentNode.appendChild(errorDiv);
+                
+                errors.push(`${label} is required`);
+                console.log(`Validation failed for ${label}: value "${value}" matches default/empty`);
+            } else {
+                console.log(`Validation passed for ${label}: value "${value}"`);
+            }
+        });
+
+        return { isValid, errors };
+    }
+
+    // Add change handlers to remove error when user selects an option
+    Object.keys(dropdowns).forEach(id => {
+        const select = document.getElementById(id);
+        if (select) {
+            select.addEventListener('change', function() {
+                const value = this.value.trim();
+                if (value && value !== defaultValues[id]) {
+                    this.classList.remove('is-invalid');
+                    const errorDiv = this.parentNode.querySelector('.dropdown-error');
+                    if (errorDiv) {
+                        errorDiv.remove();
+                    }
+                }
+            });
+        }
+    });
+
+    // Form submission handler
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Form submission started');
+            hasAttemptedSubmit = true;
+
+            // Reset all previous validation states
+            form.querySelectorAll('.is-invalid').forEach(input => {
+                input.classList.remove('is-invalid');
+            });
+            document.querySelectorAll('.invalid-feedback').forEach(el => {
+                el.style.display = 'none';
+            });
+
+            // Validate all fields
+            let isValid = true;
+
+            // 1. Validate dropdowns
+            const { isValid: areDropdownsValid, errors: dropdownErrors } = validateDropdowns();
+            if (!areDropdownsValid) {
+                console.log('Dropdown validation failed:', dropdownErrors);
+                isValid = false;
+            }
+
+            // 2. Validate carpark number
+            let isCarparkNoValid = true;
+            const carparkNo = carparkNoInput.value.trim();
+            console.log('Validating carpark number:', carparkNo);
+
+            if (!carparkNo) {
+                console.log('Carpark number is empty');
+                carparkNoInput.classList.add('is-invalid');
+                isCarparkNoValid = false;
+                isValid = false;
+            } else {
+                try {
+                    const url = isEditMode 
+                        ? `/admin/api/carparks/check-duplicate/${carparkNo}/?current_id=${currentId}`
+                        : `/admin/api/carparks/check-duplicate/${carparkNo}/`;
+                    console.log('Checking duplicate with URL:', url);
+                    
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    console.log('Duplicate check response:', data);
+                    
+                    if (data.exists) {
+                        console.log('Duplicate carpark number found');
+                        duplicateError.style.display = 'block';
+                        carparkNoInput.classList.add('is-invalid');
+                        isCarparkNoValid = false;
+                        isValid = false;
+                    }
+                } catch (error) {
+                    console.error('Error checking carpark number:', error);
+                }
+            }
+
+            // 3. Validate rates
+            const weekdayRate1Input = form.querySelector('input[name="{{ form.weekdayRate1.name }}"]');
+            const weekdayRate2Input = form.querySelector('input[name="{{ form.weekdayRate2.name }}"]');
+            const weekendRateInput = form.querySelector('input[name="{{ form.weekendRate.name }}"]');
+
+            console.log('Validating rate inputs:', {
+                weekdayRate1: weekdayRate1Input ? 'found' : 'not found',
+                weekdayRate2: weekdayRate2Input ? 'found' : 'not found',
+                weekendRate: weekendRateInput ? 'found' : 'not found'
+            });
+
+            let areRatesValid = true;
+            [weekdayRate1Input, weekdayRate2Input, weekendRateInput].forEach(input => {
+                if (input && !validateRate(input)) {
+                    console.log(`${input.name} failed validation`);
+                    areRatesValid = false;
+                    isValid = false;
+                }
+            });
+
+            // Log validation results
+            console.log('Final validation results:', {
+                isValid,
+                areDropdownsValid,
+                isCarparkNoValid,
+                areRatesValid
+            });
+
+            // If any validation failed, scroll to first error
+            if (!isValid) {
+                const firstError = document.querySelector('.is-invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+
+            // All validations passed, submit the form
+            console.log('All validations passed, submitting form...');
+            form.submit();
+        });
+    }
+
+    // Show/hide peak hour times based on checkbox
+    const peakHourCheckbox = document.getElementById('{{ form.peakHour.id_for_label }}');
+    const peakHourTimes = document.querySelector('.peak-hour-times');
+
+    function updatePeakHourTimes() {
+        peakHourTimes.style.display = peakHourCheckbox.checked ? 'block' : 'none';
+    }
+
+    if (peakHourCheckbox) {
+        peakHourCheckbox.addEventListener('change', updatePeakHourTimes);
+        updatePeakHourTimes(); // Initial state
+    }
+});
+</script>
+{% endblock %}

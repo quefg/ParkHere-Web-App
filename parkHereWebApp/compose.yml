@@ -1,0 +1,38 @@
+services:
+  django-web:
+    build: .
+    container_name: django-docker
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DEBUG: ${DEBUG}
+      DJANGO_LOGLEVEL: ${DJANGO_LOGLEVEL}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DATABASE_ENGINE: ${DATABASE_ENGINE}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/staticfiles  # This hides the host version and keeps the internal image-owned version
+      - ./db.sqlite3:/app/db.sqlite3
+
+    command: >
+      bash -c "
+        python manage.py migrate &&
+        python manage.py collectstatic --noinput &&
+        python manage.py runImportScheduler &&
+        python manage.py runserver 0.0.0.0:8000
+      "
+    # Adding a post-setup command to fix permissions
+    entrypoint: >
+      bash -c 'mkdir -p /app/staticfiles && chown -R appuser:appuser /app/staticfiles && 
+      python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
+      python manage.py runImportScheduler &&
+      python manage.py runserver 0.0.0.0:8000'
