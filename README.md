@@ -1,6 +1,7 @@
 <p align="center">
   <img src="readme_banner.png" alt="ParkHere Banner" style="width:100%; max-width:600px; height:auto; aspect-ratio:3/1;">
 </p>
+![SC2006_ParkHere_Demo_Video (1)](https://github.com/user-attachments/assets/f45ac35f-5e55-4f1e-8dac-d791db24b51b)
 
 # 📦 ParkHere — Group Project
 A Django-based web application that enables users to search for carparks, view real-time availability, and interact with a dynamic map interface. Admin users can manage and monitor the carpark system.
